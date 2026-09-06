@@ -67,8 +67,8 @@ function AnswerContent({ text }) {
 function App() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
-  const [subject, setSubject] = useState("सामान्य ज्ञान");
-  const [level, setLevel] = useState("कक्षा 6–8");
+  const [subject, setSubject] = useState("गणित");
+  const [level, setLevel] = useState("कक्षा 3–5");
   const [isLoading, setIsLoading] = useState(false);
 
   const askQuestion = async (event) => {
@@ -140,6 +140,13 @@ function App() {
           <div className="crop crop-one" /><div className="crop crop-two" /><div className="crop crop-three" />
           <span className="bird bird-one">⌁</span><span className="bird bird-two">⌁</span>
         </div>
+      </section>
+
+      <section className="pilot-strip" aria-label="गुरुजी कैसे मदद करता है">
+        <div className="pilot-intro"><span className="section-number">गुरुजी</span><strong>पढ़ाई को आसान बनाने के तीन तरीके</strong></div>
+        <div className="pilot-point"><span className="point-icon">01</span><span><strong>अपनी भाषा</strong><small>सरल हिंदी में समझो</small></span></div>
+        <div className="pilot-point"><span className="point-icon">02</span><span><strong>अपनी रफ़्तार</strong><small>बार-बार पूछो, झिझको मत</small></span></div>
+        <div className="pilot-point"><span className="point-icon">03</span><span><strong>अपना उदाहरण</strong><small>खेत, बाज़ार और घर से सीखो</small></span></div>
       </section>
 
       <section className="learning-desk" aria-label="सवाल पूछने का स्थान">
