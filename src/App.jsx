@@ -35,12 +35,9 @@ function App() {
 
       <br /><br />
 
-      {/* 🔥 YE IMPORTANT THA */}
       <button onClick={askQuestion}>
         Ask
       </button>
-
-      <br /><br />
 
       <p><b>Answer:</b> {answer}</p>
     </div>

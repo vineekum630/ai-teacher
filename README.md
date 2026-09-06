@@ -1,25 +1,46 @@
 # AI Teacher
 
-## Flask API
+A React (Vite) learning interface with a Flask API.
 
-Install the backend dependencies and configure an OpenAI API key:
+## Run locally
 
-```bash
-cd backend
-python -m pip install -r requirements.txt
-export OPENAI_API_KEY="your-api-key"
-python app.py
-```
-
-The API listens on `http://127.0.0.1:5000`. Send a question to `POST /ask`:
+Open two terminals in VS Code.
 
 ```bash
-curl -X POST http://127.0.0.1:5000/ask \
-	-H 'Content-Type: application/json' \
-	-d '{"question":"Why is the sky blue?"}'
+# Terminal 1: React website
+cd ~/ai-teacher
+npm run dev
 ```
 
-The response is JSON with an `answer` field. Set `OPENAI_MODEL` to override the default `gpt-4o-mini` model.
+Open the URL Vite prints—normally `http://localhost:5173`.
+
+```bash
+# Terminal 2: Flask API
+cd ~/ai-teacher/backend
+python3 -m pip install -r requirements.txt
+cp .env.example .env
+python3 app.py
+```
+
+The API runs at `http://127.0.0.1:5001/ask`. It is an API endpoint, not a page to open directly in the browser: it only accepts `POST` requests from the React app.
+
+## Configuration
+
+The frontend defaults to `http://127.0.0.1:5001`. To use a different API address, create a `.env.local` file in the project root:
+
+```bash
+VITE_API_URL=http://127.0.0.1:5001
+```
+
+Restart Vite after changing this value.
+
+Add your actual `OPENAI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
+
+## What is implemented
+
+- The backend sends questions to OpenAI from the server only.
+- The React page offers subject and difficulty controls, chat history, a loading state, and clear errors.
+- The API returns helpful `400`, `502`, or `503` errors instead of exposing provider details.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
