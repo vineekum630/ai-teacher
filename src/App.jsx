@@ -28,6 +28,15 @@ const practiceQuestions = [
   },
 ];
 
+const chaptersBySubject = {
+  गणित: ["जोड़ और घटाव", "गुणा और भाग", "भिन्न", "माप और समय"],
+  "पर्यावरण अध्ययन": ["हमारा परिवार", "पानी", "पौधे", "हमारा मोहल्ला"],
+  हिंदी: ["वर्णमाला", "संज्ञा", "वाक्य", "कहानी पढ़ना"],
+  "सामान्य ज्ञान": ["भारत", "उत्तर प्रदेश", "जानवर और पक्षी", "हमारा शरीर"],
+  विज्ञान: ["पदार्थ", "जीव-जंतु", "प्रकाश", "पृथ्वी और आकाश"],
+  अंग्रेज़ी: ["Alphabet", "Nouns", "Simple sentences", "Everyday words"],
+};
+
 function MermaidDiagram({ chart }) {
   const [svg, setSvg] = useState("");
 
@@ -90,6 +99,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [subject, setSubject] = useState("गणित");
   const [level, setLevel] = useState("कक्षा 3–5");
+  const [chapter, setChapter] = useState(chaptersBySubject.गणित[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [practiceChoice, setPracticeChoice] = useState("");
@@ -195,7 +205,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: `Subject: ${subject}. Level: ${level}. Question: ${trimmedQuestion}`,
+          question: `Subject: ${subject}. Chapter: ${chapter}. Level: ${level}. Question: ${trimmedQuestion}`,
         }),
       });
 
@@ -265,7 +275,7 @@ function App() {
         <div className="controls">
           <label>
             <span>विषय</span>
-            <select value={subject} onChange={(event) => setSubject(event.target.value)}>
+            <select value={subject} onChange={(event) => { const nextSubject = event.target.value; setSubject(nextSubject); setChapter(chaptersBySubject[nextSubject][0]); }}>
               <option>गणित</option>
               <option>पर्यावरण अध्ययन</option>
               <option>हिंदी</option>
@@ -281,6 +291,12 @@ function App() {
               <option>कक्षा 3–5</option>
               <option>कक्षा 6–8</option>
               <option>कक्षा 9–12</option>
+            </select>
+          </label>
+          <label>
+            <span>अध्याय</span>
+            <select value={chapter} onChange={(event) => setChapter(event.target.value)}>
+              {chaptersBySubject[subject].map((chapterName) => <option key={chapterName}>{chapterName}</option>)}
             </select>
           </label>
         </div>
