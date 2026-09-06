@@ -1,0 +1,18 @@
+{
+  "name": "गुरुजी - Mathura Agra Learning",
+  "short_name": "गुरुजी",
+  "description": "मथुरा और आगरा के बच्चों के लिए आसान हिंदी में सीखने वाला सहायक।",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f5e9",
+  "theme_color": "#197770",
+  "lang": "hi-IN",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -110,6 +110,23 @@ function App() {
   const recognitionRef = useRef(null);
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const [answerFeedback, setAnswerFeedback] = useState({});
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleInstallPrompt = (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    };
+    window.addEventListener("beforeinstallprompt", handleInstallPrompt);
+    return () => window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
+  }, []);
+
+  const installApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  };
 
   const currentPractice = practiceQuestions[practiceIndex];
 
@@ -240,7 +257,10 @@ function App() {
             <small>AI से सीखो, अपने अंदाज़ में</small>
           </span>
         </a>
-        <div className="trust-note"><span className="status-dot" /> मथुरा • आगरा पायलट</div>
+        <div className="topbar-actions">
+          {installPrompt && <button className="install-button" type="button" onClick={installApp}>फोन में रखें</button>}
+          <div className="trust-note"><span className="status-dot" /> मथुरा • आगरा पायलट</div>
+        </div>
       </header>
 
       <section className="welcome-grid">
