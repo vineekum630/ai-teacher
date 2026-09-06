@@ -34,6 +34,10 @@ Add your actual `GEMINI_API_KEY` to `backend/.env` before starting the backend. 
 
 To test the app without a Gemini request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.
 
+## Free public hosting
+
+The included `render.yaml` can deploy the frontend and Flask API as two free Render services. Create a Render account, choose **New > Blueprint**, connect this GitHub repository, and set `VITE_API_URL` to the public API URL after the first deploy. Keep `MOCK_AI=true` for a free demo, or add `GEMINI_API_KEY` in Render's private environment variables for real Gemini answers.
+
 ## What is implemented
 
 - The backend sends questions to Gemini from the server only.
