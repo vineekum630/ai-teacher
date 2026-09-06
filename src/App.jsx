@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 const quickQuestions = [
@@ -6,6 +6,63 @@ const quickQuestions = [
   "गणित में भिन्न क्या होते हैं?",
   "पौधे खाना कैसे बनाते हैं?",
 ];
+
+function MermaidDiagram({ chart }) {
+  const [svg, setSvg] = useState("");
+
+  useEffect(() => {
+    let isCurrent = true;
+    const diagramId = `diagram-${Math.random().toString(36).slice(2)}`;
+    import("mermaid").then(({ default: mermaid }) => {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        securityLevel: "strict",
+        themeVariables: {
+          primaryColor: "#fff2c9",
+          primaryTextColor: "#183c3b",
+          primaryBorderColor: "#197770",
+          lineColor: "#c64b3f",
+          secondaryColor: "#dceee7",
+          tertiaryColor: "#fce7df",
+        },
+      });
+
+      return mermaid.render(diagramId, chart.trim());
+    }).then(({ svg: renderedSvg }) => {
+      if (isCurrent) setSvg(renderedSvg);
+    }).catch(() => {
+      if (isCurrent) setSvg("");
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [chart]);
+
+  return svg ? <div className="diagram" dangerouslySetInnerHTML={{ __html: svg }} /> : null;
+}
+
+function AnswerContent({ text }) {
+  const diagramPattern = /```mermaid\s*([\s\S]*?)```/g;
+  const content = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = diagramPattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      content.push(<p className="answer-text" key={`text-${lastIndex}`}>{text.slice(lastIndex, match.index)}</p>);
+    }
+    content.push(<MermaidDiagram chart={match[1]} key={`diagram-${match.index}`} />);
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    content.push(<p className="answer-text" key={`text-${lastIndex}`}>{text.slice(lastIndex)}</p>);
+  }
+
+  return <div className="answer-content">{content}</div>;
+}
 
 function App() {
   const [question, setQuestion] = useState("");
@@ -154,7 +211,7 @@ function App() {
             {messages.map((message, index) => (
               <article className={`message ${message.type}`} key={`${message.type}-${index}`}>
                 <span className="message-label">{message.type === "student" ? "आपने पूछा" : message.type === "error" ? "ध्यान दें" : "गुरुजी का जवाब"}</span>
-                <p>{message.text}</p>
+                {message.type === "teacher" ? <AnswerContent text={message.text} /> : <p>{message.text}</p>}
               </article>
             ))}
           </div>

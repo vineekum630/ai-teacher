@@ -1,3 +1,7 @@
+ .answer-content { display: grid; gap: 15px; }
+ .answer-text { white-space: pre-wrap; }
+ .diagram { overflow-x: auto; padding: 14px 10px; border: 1px solid rgba(25, 119, 112, .18); border-radius: 8px; background: #fbfaf1; }
+ .diagram svg { display: block; max-width: 100%; min-width: 280px; height: auto; margin: 0 auto; }
 .app-shell { position: relative; width: min(100%, 1120px); margin: 0 auto; padding: 28px clamp(18px, 5vw, 64px) 30px; box-sizing: border-box; overflow: hidden; }
 .sun-mark { position: absolute; top: 92px; right: -110px; width: 230px; height: 230px; border: 1px solid rgba(232, 161, 39, .28); border-radius: 50%; box-shadow: 0 0 0 18px rgba(232, 161, 39, .06), 0 0 0 42px rgba(232, 161, 39, .04); }
 .topbar { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 22px; }.brand { display: flex; gap: 11px; align-items: center; color: var(--ink); text-decoration: none; }.brand-icon { display: grid; place-items: center; width: 43px; height: 43px; border-radius: 13px 13px 13px 4px; background: var(--teal); color: #fffef8; font-weight: 900; font-size: 1.15rem; }.brand strong { display: block; font-size: 1.13rem; letter-spacing: .02em; }.brand small { display: block; color: var(--muted); font-size: .68rem; margin-top: 1px; }.trust-note { color: var(--muted); font-size: .76rem; font-weight: 700; }.status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--green); }

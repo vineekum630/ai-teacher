@@ -35,7 +35,10 @@ def ask():
             model=os.getenv("GEMINI_MODEL", "gemini-3.6-flash"),
             contents=(
                 "You are a helpful AI teacher. Explain concepts clearly, "
-                "use simple examples, and adapt to the student's question.\n\n"
+                "use simple examples, and adapt to the student's question. "
+                "For science, processes, or how-to questions, add one small "
+                "Mermaid flowchart in a fenced ```mermaid block when it helps. "
+                "Keep diagrams under 6 nodes; skip them when they do not help.\n\n"
                 f"Student question: {question.strip()}"
             ),
         )
