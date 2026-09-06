@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const quickQuestions = [
@@ -95,6 +95,9 @@ function App() {
   const [practiceChoice, setPracticeChoice] = useState("");
   const [practiceScore, setPracticeScore] = useState(0);
   const [practiceResult, setPracticeResult] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [voiceMessage, setVoiceMessage] = useState("");
+  const recognitionRef = useRef(null);
 
   const currentPractice = practiceQuestions[practiceIndex];
 
@@ -116,6 +119,41 @@ function App() {
     setPracticeChoice("");
     setPracticeScore(0);
     setPracticeResult("");
+  };
+
+  const toggleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceMessage("इस browser में आवाज़ से सवाल की सुविधा नहीं है। नीचे लिखकर पूछें।");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "hi-IN";
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceMessage("सुन रहा हूँ... अपना सवाल बोलिए");
+    };
+    recognition.onresult = (event) => {
+      setQuestion(event.results[0][0].transcript);
+      setVoiceMessage("सवाल मिल गया। अब ‘जवाब दो’ दबाएँ।");
+    };
+    recognition.onerror = () => {
+      setVoiceMessage("आवाज़ साफ़ नहीं मिली। फिर कोशिश करें या लिखकर पूछें।");
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+    recognitionRef.current = recognition;
+    recognition.start();
   };
 
   const askQuestion = async (event) => {
@@ -237,10 +275,15 @@ function App() {
             onChange={(event) => setQuestion(event.target.value)}
             aria-label="अपना सवाल यहाँ लिखें"
           />
+          <button className={`voice-button ${isListening ? "listening" : ""}`} type="button" onClick={toggleVoiceInput} aria-label="आवाज़ से सवाल पूछें">
+            <span aria-hidden="true">{isListening ? "■" : "●"}</span>
+            <small>{isListening ? "रुकें" : "बोलें"}</small>
+          </button>
           <button type="submit" disabled={isLoading || !question.trim()}>
             {isLoading ? "सोच रहा है..." : "जवाब दो"}<span aria-hidden="true">↗</span>
           </button>
         </form>
+        {voiceMessage && <p className="voice-message" aria-live="polite">{voiceMessage}</p>}
 
         <div className="quick-questions">
           <span>जल्दी पूछें:</span>
