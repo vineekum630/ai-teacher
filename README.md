@@ -22,14 +22,14 @@ cp .env.example .env
 python3 app.py
 ```
 
-The API runs at `http://127.0.0.1:5001/ask`. It is an API endpoint, not a page to open directly in the browser: it only accepts `POST` requests from the React app.
+The API runs at `http://127.0.0.1:5000/ask`. It is an API endpoint, not a page to open directly in the browser: it only accepts `POST` requests from the React app.
 
 ## Configuration
 
 The frontend defaults to `http://127.0.0.1:5001`. To use a different API address, create a `.env.local` file in the project root:
 
 ```bash
-VITE_API_URL=http://127.0.0.1:5001
+VITE_API_URL=http://127.0.0.1:5000
 ```
 
 Restart Vite after changing this value.

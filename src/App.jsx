@@ -16,7 +16,7 @@ function App() {
 
       const data = await res.json();
       setAnswer(data.answer || data.error);
-    } catch (err) {
+    } catch {
       setAnswer("Backend se connect nahi ho paaya ❌");
     }
   };
@@ -45,3 +45,4 @@ function App() {
 }
 
 export default App;
+
