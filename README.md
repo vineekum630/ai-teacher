@@ -26,21 +26,17 @@ The API runs at `http://127.0.0.1:5000/ask`. It is an API endpoint, not a page t
 
 ## Configuration
 
-The frontend defaults to `http://127.0.0.1:5001`. To use a different API address, create a `.env.local` file in the project root:
+The frontend currently calls `http://127.0.0.1:5000`. To use a different API address, update the URL in `src/App.jsx`.
 
-```bash
-VITE_API_URL=http://127.0.0.1:5000
-```
+Restart Vite after changing the frontend API URL.
 
-Restart Vite after changing this value.
+Add your actual `GEMINI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
 
-Add your actual `OPENAI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
-
-To test the app without an OpenAI request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.
+To test the app without a Gemini request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.
 
 ## What is implemented
 
-- The backend sends questions to OpenAI from the server only.
+- The backend sends questions to Gemini from the server only.
 - The React page offers subject and difficulty controls, chat history, a loading state, and clear errors.
 - The API returns helpful `400`, `502`, or `503` errors instead of exposing provider details.
 

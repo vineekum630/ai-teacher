@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from openai import OpenAI, OpenAIError
+from google import genai
 
 app = Flask(__name__)
 CORS(app)
@@ -21,28 +21,28 @@ def ask():
         return jsonify({
             "answer": (
                 f"Demo answer: you asked '{question.strip()}'. "
-                "Mock mode is working; no OpenAI request was made."
+                "Mock mode is working; no Gemini request was made."
             )
         })
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key or api_key == "your_api_key_here":
-        return jsonify({"error": "OPENAI_API_KEY is not configured"}), 503
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key or api_key == "your_gemini_key_here":
+        return jsonify({"error": "GEMINI_API_KEY is not configured"}), 503
 
     try:
-        client = OpenAI(api_key=api_key)
-        response = client.responses.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
-            instructions=(
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            contents=(
                 "You are a helpful AI teacher. Explain concepts clearly, "
-                "use simple examples, and adapt to the student's question."
+                "use simple examples, and adapt to the student's question.\n\n"
+                f"Student question: {question.strip()}"
             ),
-            input=question.strip(),
         )
-    except OpenAIError:
+    except Exception:
         return jsonify({"error": "The AI service could not answer right now"}), 502
 
-    return jsonify({"answer": response.output_text})
+    return jsonify({"answer": response.text or "The AI returned an empty answer"})
 
 if __name__ == "__main__":
     app.run(port=5000)
