@@ -98,6 +98,7 @@ function App() {
   const [isListening, setIsListening] = useState(false);
   const [voiceMessage, setVoiceMessage] = useState("");
   const recognitionRef = useRef(null);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
 
   const currentPractice = practiceQuestions[practiceIndex];
 
@@ -154,6 +155,24 @@ function App() {
     };
     recognitionRef.current = recognition;
     recognition.start();
+  };
+
+  const speakAnswer = (text, index) => {
+    if (!window.speechSynthesis) return;
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(text.replace(/```mermaid[\s\S]*?```/g, ""));
+    speech.lang = "hi-IN";
+    speech.rate = 0.9;
+    speech.onend = () => setSpeakingIndex(null);
+    speech.onerror = () => setSpeakingIndex(null);
+    setSpeakingIndex(index);
+    window.speechSynthesis.speak(speech);
   };
 
   const askQuestion = async (event) => {
@@ -336,7 +355,15 @@ function App() {
             {messages.map((message, index) => (
               <article className={`message ${message.type}`} key={`${message.type}-${index}`}>
                 <span className="message-label">{message.type === "student" ? "आपने पूछा" : message.type === "error" ? "ध्यान दें" : "गुरुजी का जवाब"}</span>
-                {message.type === "teacher" ? <AnswerContent text={message.text} /> : <p>{message.text}</p>}
+                {message.type === "teacher" ? (
+                  <>
+                    <AnswerContent text={message.text} />
+                    <button className="speak-button" type="button" onClick={() => speakAnswer(message.text, index)}>
+                      <span aria-hidden="true">{speakingIndex === index ? "■" : "▶"}</span>
+                      {speakingIndex === index ? "रोकें" : "सुनो"}
+                    </button>
+                  </>
+                ) : <p>{message.text}</p>}
               </article>
             ))}
           </div>
