@@ -94,7 +94,48 @@ function AnswerContent({ text }) {
   return <div className="answer-content">{content}</div>;
 }
 
+function PilotAccess({ onJoin }) {
+  const [role, setRole] = useState("student");
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+
+  const submitAccess = (event) => {
+    event.preventDefault();
+    if (!name.trim() || !code.trim()) return;
+    onJoin({ name: name.trim(), role, code: code.trim().toUpperCase() });
+  };
+
+  return (
+    <main className="access-shell">
+      <div className="access-sun" aria-hidden="true" />
+      <section className="access-card">
+        <div className="access-brand"><span className="brand-icon">गु</span><strong>गुरुजी</strong></div>
+        <p className="kicker">मथुरा • आगरा पायलट</p>
+        <h1>सीखने की कक्षा में<br /><em>जुड़िए।</em></h1>
+        <p className="access-copy">अपना नाम और शिक्षक से मिला code डालकर शुरू करें। यह pilot demo access है।</p>
+        <div className="role-tabs" role="tablist" aria-label="भूमिका चुनें">
+          <button className={role === "student" ? "active" : ""} type="button" onClick={() => setRole("student")}>विद्यार्थी</button>
+          <button className={role === "teacher" ? "active" : ""} type="button" onClick={() => setRole("teacher")}>शिक्षक</button>
+        </div>
+        <form className="access-form" onSubmit={submitAccess}>
+          <label><span>{role === "teacher" ? "शिक्षक का नाम" : "विद्यार्थी का नाम"}</span><input value={name} onChange={(event) => setName(event.target.value)} placeholder="जैसे: रीना" /></label>
+          <label><span>{role === "teacher" ? "शिक्षक code" : "कक्षा code"}</span><input value={code} onChange={(event) => setCode(event.target.value)} placeholder={role === "teacher" ? "जैसे: MATHURA" : "जैसे: CLASS-3A"} /></label>
+          <button type="submit" disabled={!name.trim() || !code.trim()}>गुरुजी से जुड़ें <span>↗</span></button>
+        </form>
+        <p className="access-note">अभी password की जरूरत नहीं। असली school pilot में code शिक्षक देंगे।</p>
+      </section>
+    </main>
+  );
+}
+
 function App() {
+  const [profile, setProfile] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("guruji-pilot-profile")) || null;
+    } catch {
+      return null;
+    }
+  });
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
   const [subject, setSubject] = useState("गणित");
@@ -111,6 +152,16 @@ function App() {
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const [answerFeedback, setAnswerFeedback] = useState({});
   const [installPrompt, setInstallPrompt] = useState(null);
+
+  const joinPilot = (nextProfile) => {
+    localStorage.setItem("guruji-pilot-profile", JSON.stringify(nextProfile));
+    setProfile(nextProfile);
+  };
+
+  const leavePilot = () => {
+    localStorage.removeItem("guruji-pilot-profile");
+    setProfile(null);
+  };
 
   useEffect(() => {
     const handleInstallPrompt = (event) => {
@@ -227,7 +278,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: `Subject: ${subject}. Chapter: ${chapter}. Level: ${level}. Question: ${trimmedQuestion}`,
+          question: `Role: ${profile.role}. Learner: ${profile.name}. Subject: ${subject}. Chapter: ${chapter}. Level: ${level}. Question: ${trimmedQuestion}`,
         }),
       });
 
@@ -246,6 +297,8 @@ function App() {
     }
   };
 
+  if (!profile) return <PilotAccess onJoin={joinPilot} />;
+
   return (
     <main className="app-shell">
       <div className="sun-mark" aria-hidden="true" />
@@ -259,6 +312,8 @@ function App() {
         </a>
         <div className="topbar-actions">
           {installPrompt && <button className="install-button" type="button" onClick={installApp}>फोन में रखें</button>}
+          <span className="profile-pill">{profile.role === "teacher" ? "शिक्षक" : "विद्यार्थी"}: {profile.name}</span>
+          <button className="logout-button" type="button" onClick={leavePilot}>बाहर</button>
           <div className="trust-note"><span className="status-dot" /> मथुरा • आगरा पायलट</div>
         </div>
       </header>
