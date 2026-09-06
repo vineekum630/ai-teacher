@@ -17,6 +17,14 @@ def ask():
     if not isinstance(question, str) or not question.strip():
         return jsonify({"error": "Question is required"}), 400
 
+    if os.getenv("MOCK_AI", "false").lower() == "true":
+        return jsonify({
+            "answer": (
+                f"Demo answer: you asked '{question.strip()}'. "
+                "Mock mode is working; no OpenAI request was made."
+            )
+        })
+
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key or api_key == "your_api_key_here":
         return jsonify({"error": "OPENAI_API_KEY is not configured"}), 503

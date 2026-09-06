@@ -36,6 +36,8 @@ Restart Vite after changing this value.
 
 Add your actual `OPENAI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
 
+To test the app without an OpenAI request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.
+
 ## What is implemented
 
 - The backend sends questions to OpenAI from the server only.
