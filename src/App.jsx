@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 const quickQuestions = [
-  "बारिश कैसे होती है?",
-  "गणित में भिन्न क्या होते हैं?",
-  "पौधे खाना कैसे बनाते हैं?",
+  "आधा और चौथाई कैसे समझें?",
+  "गुणा पहाड़ा याद कैसे करें?",
+  "भिन्न को रोटी से समझाओ",
 ];
 
 function MermaidDiagram({ chart }) {
@@ -121,14 +121,14 @@ function App() {
             <small>AI से सीखो, अपने अंदाज़ में</small>
           </span>
         </a>
-        <div className="trust-note"><span className="status-dot" /> सीखना हमेशा मुफ़्त</div>
+        <div className="trust-note"><span className="status-dot" /> मथुरा • आगरा पायलट</div>
       </header>
 
       <section className="welcome-grid">
         <div className="welcome-copy">
-          <p className="kicker">नमस्ते, जिज्ञासु दोस्त <span>✦</span></p>
+          <p className="kicker">मथुरा और आगरा के बच्चों के लिए <span>✦</span></p>
           <h1>सवाल छोटा हो या बड़ा,<br /><em>सीखना शुरू करो।</em></h1>
-          <p className="intro">आपके सवाल का जवाब आसान भाषा में, उदाहरण के साथ और बिना किसी झिझक के।</p>
+          <p className="intro">आपके सवाल का जवाब आसान हिंदी में, रोज़मर्रा के उदाहरण और छोटे-छोटे कदमों के साथ।</p>
           <div className="learning-route" aria-label="सीखने का तरीका">
             <span>पूछो</span><i>→</i><span>समझो</span><i>→</i><span>आगे बढ़ो</span>
           </div>
@@ -148,24 +148,26 @@ function App() {
             <span className="section-number">01</span>
             <h2>आज क्या जानना है?</h2>
           </div>
-          <span className="hint">जितना साफ़ सवाल, उतना अच्छा जवाब</span>
+          <span className="hint">कक्षा 1–5 के लिए आसान जवाब</span>
         </div>
 
         <div className="controls">
           <label>
             <span>विषय</span>
             <select value={subject} onChange={(event) => setSubject(event.target.value)}>
+              <option>गणित</option>
+              <option>पर्यावरण अध्ययन</option>
+              <option>हिंदी</option>
               <option>सामान्य ज्ञान</option>
               <option>विज्ञान</option>
-              <option>गणित</option>
-              <option>हिंदी</option>
               <option>अंग्रेज़ी</option>
             </select>
           </label>
           <label>
             <span>आपकी कक्षा</span>
             <select value={level} onChange={(event) => setLevel(event.target.value)}>
-              <option>कक्षा 1–5</option>
+              <option>कक्षा 1–2</option>
+              <option>कक्षा 3–5</option>
               <option>कक्षा 6–8</option>
               <option>कक्षा 9–12</option>
             </select>
@@ -218,7 +220,7 @@ function App() {
         )}
       </section>
 
-      <footer><span>उत्तर प्रदेश से</span><span className="footer-line" /> <span>पूरी दुनिया तक</span> <span>♥</span></footer>
+      <footer><span>मथुरा • आगरा</span><span className="footer-line" /> <span>सीखने की नई शुरुआत</span> <span>♥</span></footer>
     </main>
   );
 }
