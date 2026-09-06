@@ -32,7 +32,7 @@ def ask():
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            model=os.getenv("GEMINI_MODEL", "gemini-3.6-flash"),
             contents=(
                 "You are a helpful AI teacher. Explain concepts clearly, "
                 "use simple examples, and adapt to the student's question.\n\n"
