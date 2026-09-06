@@ -109,6 +109,7 @@ function App() {
   const [voiceMessage, setVoiceMessage] = useState("");
   const recognitionRef = useRef(null);
   const [speakingIndex, setSpeakingIndex] = useState(null);
+  const [answerFeedback, setAnswerFeedback] = useState({});
 
   const currentPractice = practiceQuestions[practiceIndex];
 
@@ -183,6 +184,10 @@ function App() {
     speech.onerror = () => setSpeakingIndex(null);
     setSpeakingIndex(index);
     window.speechSynthesis.speak(speech);
+  };
+
+  const giveFeedback = (index, value) => {
+    setAnswerFeedback((current) => ({ ...current, [index]: value }));
   };
 
   const askQuestion = async (event) => {
@@ -378,6 +383,11 @@ function App() {
                       <span aria-hidden="true">{speakingIndex === index ? "■" : "▶"}</span>
                       {speakingIndex === index ? "रोकें" : "सुनो"}
                     </button>
+                    <div className="answer-feedback" aria-label="इस जवाब पर प्रतिक्रिया दें">
+                      <span>जवाब काम आया?</span>
+                      <button className={answerFeedback[index] === "helpful" ? "active" : ""} type="button" onClick={() => giveFeedback(index, "helpful")}>हाँ 👍</button>
+                      <button className={answerFeedback[index] === "improve" ? "active" : ""} type="button" onClick={() => giveFeedback(index, "improve")}>सुधार चाहिए</button>
+                    </div>
                   </>
                 ) : <p>{message.text}</p>}
               </article>
