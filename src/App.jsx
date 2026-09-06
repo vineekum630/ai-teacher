@@ -7,6 +7,27 @@ const quickQuestions = [
   "भिन्न को रोटी से समझाओ",
 ];
 
+const practiceQuestions = [
+  {
+    question: "आधा और चौथाई जोड़ने पर कितना होगा?",
+    options: ["1/4", "2/4", "3/4", "1"],
+    answer: "3/4",
+    hint: "आधा = 2/4. अब 2/4 + 1/4 जोड़ो।",
+  },
+  {
+    question: "6 × 4 का सही उत्तर क्या है?",
+    options: ["10", "20", "24", "28"],
+    answer: "24",
+    hint: "6 को चार बार जोड़ो: 6 + 6 + 6 + 6।",
+  },
+  {
+    question: "एक रुपये में कितने पैसे होते हैं?",
+    options: ["10", "50", "80", "100"],
+    answer: "100",
+    hint: "एक रुपये को 100 बराबर हिस्सों में बाँट सकते हैं।",
+  },
+];
+
 function MermaidDiagram({ chart }) {
   const [svg, setSvg] = useState("");
 
@@ -70,6 +91,32 @@ function App() {
   const [subject, setSubject] = useState("गणित");
   const [level, setLevel] = useState("कक्षा 3–5");
   const [isLoading, setIsLoading] = useState(false);
+  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [practiceChoice, setPracticeChoice] = useState("");
+  const [practiceScore, setPracticeScore] = useState(0);
+  const [practiceResult, setPracticeResult] = useState("");
+
+  const currentPractice = practiceQuestions[practiceIndex];
+
+  const checkPracticeAnswer = () => {
+    if (!practiceChoice) return;
+    const isCorrect = practiceChoice === currentPractice.answer;
+    if (isCorrect) setPracticeScore((score) => score + 1);
+    setPracticeResult(isCorrect ? "सही जवाब! बहुत बढ़िया 👏" : `अभी थोड़ा और अभ्यास करो। सही जवाब ${currentPractice.answer} है।`);
+  };
+
+  const nextPracticeQuestion = () => {
+    setPracticeIndex((index) => (index + 1) % practiceQuestions.length);
+    setPracticeChoice("");
+    setPracticeResult("");
+  };
+
+  const resetPractice = () => {
+    setPracticeIndex(0);
+    setPracticeChoice("");
+    setPracticeScore(0);
+    setPracticeResult("");
+  };
 
   const askQuestion = async (event) => {
     event?.preventDefault();
@@ -201,6 +248,32 @@ function App() {
             <button key={prompt} type="button" onClick={() => setQuestion(prompt)}>{prompt}</button>
           ))}
         </div>
+      </section>
+
+      <section className="practice-card" aria-label="गणित अभ्यास">
+        <div className="practice-heading">
+          <div><span className="section-number">03</span><h2>छोटा सा अभ्यास</h2></div>
+          <span className="score-badge">स्कोर: {practiceScore}/{practiceQuestions.length}</span>
+        </div>
+        <p className="practice-kicker">कक्षा 3–5 • गणित</p>
+        <h3>{currentPractice.question}</h3>
+        <div className="practice-options">
+          {currentPractice.options.map((option) => (
+            <button
+              className={practiceChoice === option ? "selected" : ""}
+              key={option}
+              type="button"
+              onClick={() => { setPracticeChoice(option); setPracticeResult(""); }}
+            >{option}</button>
+          ))}
+        </div>
+        <div className="practice-actions">
+          <button className="check-button" type="button" onClick={checkPracticeAnswer} disabled={!practiceChoice}>जवाब जाँचें</button>
+          <button className="next-button" type="button" onClick={nextPracticeQuestion}>अगला सवाल →</button>
+          <button className="reset-button" type="button" onClick={resetPractice}>फिर से शुरू</button>
+        </div>
+        {practiceResult && <p className={`practice-result ${practiceResult.startsWith("सही") ? "correct" : "try-again"}`}>{practiceResult}</p>}
+        <p className="practice-hint">संकेत: {currentPractice.hint}</p>
       </section>
 
       <section className="conversation" aria-live="polite" aria-label="बातचीत">
