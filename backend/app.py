@@ -4,7 +4,7 @@ import re
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from google import genai
+from groq import Groq
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -36,6 +36,41 @@ def issue_session(user):
 
 def valid_email(email):
     return re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) is not None
+
+
+def generate_ai_answer(question):
+    if os.getenv("AI_PROVIDER", "groq").lower() != "groq":
+        raise RuntimeError("Unsupported AI provider")
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key or api_key == "your_groq_key_here":
+        raise RuntimeError("GROQ_API_KEY is not configured")
+
+    client = Groq(api_key=api_key)
+    messages = [{
+        "role": "system",
+        "content": (
+            "You are a helpful AI teacher for UP Board learners. Explain clearly "
+            "in simple Hindi or the student's language, use small examples, and "
+            "adapt to the student's class and chapter. For science or process "
+            "questions, add one small Mermaid flowchart in a fenced ```mermaid "
+            "block when it helps. Keep diagrams under 6 nodes."
+        ),
+    }, {"role": "user", "content": question}]
+    models = [
+        os.getenv("GROQ_PRIMARY_MODEL", "llama-3.3-70b-versatile"),
+        os.getenv("GROQ_FALLBACK_MODEL", "llama-3.1-8b-instant"),
+    ]
+    last_error = None
+    for model in dict.fromkeys(models):
+        try:
+            response = client.chat.completions.create(model=model, messages=messages)
+            answer = response.choices[0].message.content
+            if answer:
+                return answer
+        except Exception as error:
+            last_error = error
+    raise RuntimeError("All Groq models failed") from last_error
 
 
 @app.post("/auth/register")
@@ -123,31 +158,16 @@ def ask():
         return jsonify({
             "answer": (
                 f"Demo answer: you asked '{question.strip()}'. "
-                "Mock mode is working; no Gemini request was made."
+                "Mock mode is working; no AI provider request was made."
             )
         })
 
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key or api_key == "your_gemini_key_here":
-        return jsonify({"error": "GEMINI_API_KEY is not configured"}), 503
-
     try:
-        client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-3.6-flash"),
-            contents=(
-                "You are a helpful AI teacher. Explain concepts clearly, "
-                "use simple examples, and adapt to the student's question. "
-                "For science, processes, or how-to questions, add one small "
-                "Mermaid flowchart in a fenced ```mermaid block when it helps. "
-                "Keep diagrams under 6 nodes; skip them when they do not help.\n\n"
-                f"Student question: {question.strip()}"
-            ),
-        )
+        answer = generate_ai_answer(question.strip())
     except Exception:
         return jsonify({"error": "The AI service could not answer right now"}), 502
 
-    return jsonify({"answer": response.text or "The AI returned an empty answer"})
+    return jsonify({"answer": answer})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))

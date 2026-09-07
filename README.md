@@ -52,17 +52,17 @@ The login form stores only a signed session token in the browser. Passwords are 
 
 The learning controls currently include a curated UP Board/SCERT-aligned starter map for Classes 3, 4, and 5 in Maths, EVS, and Hindi. It is intentionally kept in the frontend while the pilot is small. Before treating it as an official exam syllabus, verify chapter names and yearly changes against the latest UPMSP/SCERT publication and move the verified map into Supabase.
 
-Add your actual `GEMINI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
+Add your actual `GROQ_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
 
-To test the app without a Gemini request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.
+To test the app without a Groq request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.
 
 ## Free public hosting
 
-The included `render.yaml` can deploy the frontend and Flask API as two free Render services. Create a Render account, choose **New > Blueprint**, connect this GitHub repository, and set `VITE_API_URL` to the public API URL after the first deploy. Keep `MOCK_AI=true` for a free demo, or add `GEMINI_API_KEY` in Render's private environment variables for real Gemini answers.
+The included `render.yaml` can deploy the frontend and Flask API as two free Render services. Create a Render account, choose **New > Blueprint**, connect this GitHub repository, and set `VITE_API_URL` to the public API URL after the first deploy. Keep `MOCK_AI=true` for a free demo, or add `GROQ_API_KEY` in Render's private environment variables for real Llama answers.
 
 ## What is implemented
 
-- The backend sends questions to Gemini from the server only.
+- The backend sends questions to Groq from the server only and falls back between two Llama models.
 - The React page offers subject and difficulty controls, chat history, a loading state, and clear errors.
 - The API returns helpful `400`, `502`, or `503` errors instead of exposing provider details.
 

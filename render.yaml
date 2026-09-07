@@ -7,10 +7,14 @@ services:
     startCommand: python3 app.py
     plan: free
     envVars:
-      - key: GEMINI_API_KEY
+      - key: GROQ_API_KEY
         sync: false
-      - key: GEMINI_MODEL
-        value: gemini-3.6-flash
+      - key: AI_PROVIDER
+        value: groq
+      - key: GROQ_PRIMARY_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_FALLBACK_MODEL
+        value: llama-3.1-8b-instant
       - key: MOCK_AI
         value: true
       - key: SUPABASE_URL
