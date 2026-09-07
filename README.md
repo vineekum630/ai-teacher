@@ -48,6 +48,10 @@ Keep `SUPABASE_SERVICE_ROLE_KEY` and `SESSION_SECRET` out of React, GitHub, and 
 On Render, add the same values under the `guruji-api` service environment variables.
 The login form stores only a signed session token in the browser. Passwords are hashed before they are saved in Supabase.
 
+## Syllabus alignment
+
+The learning controls currently include a curated UP Board/SCERT-aligned starter map for Classes 3, 4, and 5 in Maths, EVS, and Hindi. It is intentionally kept in the frontend while the pilot is small. Before treating it as an official exam syllabus, verify chapter names and yearly changes against the latest UPMSP/SCERT publication and move the verified map into Supabase.
+
 Add your actual `GEMINI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
 
 To test the app without a Gemini request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.

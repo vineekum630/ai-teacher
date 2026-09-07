@@ -28,14 +28,26 @@ const practiceQuestions = [
   },
 ];
 
-const chaptersBySubject = {
-  गणित: ["जोड़ और घटाव", "गुणा और भाग", "भिन्न", "माप और समय"],
-  "पर्यावरण अध्ययन": ["हमारा परिवार", "पानी", "पौधे", "हमारा मोहल्ला"],
-  हिंदी: ["वर्णमाला", "संज्ञा", "वाक्य", "कहानी पढ़ना"],
-  "सामान्य ज्ञान": ["भारत", "उत्तर प्रदेश", "जानवर और पक्षी", "हमारा शरीर"],
-  विज्ञान: ["पदार्थ", "जीव-जंतु", "प्रकाश", "पृथ्वी और आकाश"],
-  अंग्रेज़ी: ["Alphabet", "Nouns", "Simple sentences", "Everyday words"],
+const upBoardSyllabus = {
+  "कक्षा 3": {
+    गणित: ["संख्याएँ", "जोड़ और घटाव", "गुणा और भाग", "भिन्न", "माप और समय"],
+    "पर्यावरण अध्ययन": ["हमारा परिवार", "पानी", "पौधे", "जानवर", "हमारा मोहल्ला"],
+    हिंदी: ["वर्णमाला", "मात्राएँ", "संज्ञा", "वाक्य", "कहानी पढ़ना"],
+  },
+  "कक्षा 4": {
+    गणित: ["बड़ी संख्याएँ", "गुणा और भाग", "भिन्न", "आकृतियाँ", "माप और समय"],
+    "पर्यावरण अध्ययन": ["परिवार और समुदाय", "पानी और स्वच्छता", "पौधे", "जीव-जंतु", "यात्रा और परिवहन"],
+    हिंदी: ["शब्द और वाक्य", "संज्ञा और सर्वनाम", "क्रिया", "अनुच्छेद लेखन", "कहानी और कविता"],
+  },
+  "कक्षा 5": {
+    गणित: ["संख्या पद्धति", "चार संक्रियाएँ", "भिन्न और दशमलव", "ज्यामितीय आकृतियाँ", "क्षेत्रफल और परिमाप"],
+    "पर्यावरण अध्ययन": ["हमारा शरीर", "भोजन और स्वास्थ्य", "जल संरक्षण", "पौधे और पर्यावरण", "उत्तर प्रदेश"],
+    हिंदी: ["भाषा और व्याकरण", "काल", "वचन और लिंग", "पत्र लेखन", "कहानी का सार"],
+  },
 };
+
+const syllabusLevels = Object.keys(upBoardSyllabus);
+const syllabusSubjects = Object.keys(upBoardSyllabus[syllabusLevels[0]]);
 
 function MermaidDiagram({ chart }) {
   const [svg, setSvg] = useState("");
@@ -155,8 +167,8 @@ function App() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
   const [subject, setSubject] = useState("गणित");
-  const [level, setLevel] = useState("कक्षा 3–5");
-  const [chapter, setChapter] = useState(chaptersBySubject.गणित[0]);
+  const [level, setLevel] = useState("कक्षा 3");
+  const [chapter, setChapter] = useState(upBoardSyllabus["कक्षा 3"].गणित[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [practiceChoice, setPracticeChoice] = useState("");
@@ -386,28 +398,20 @@ function App() {
         <div className="controls">
           <label>
             <span>विषय</span>
-            <select value={subject} onChange={(event) => { const nextSubject = event.target.value; setSubject(nextSubject); setChapter(chaptersBySubject[nextSubject][0]); }}>
-              <option>गणित</option>
-              <option>पर्यावरण अध्ययन</option>
-              <option>हिंदी</option>
-              <option>सामान्य ज्ञान</option>
-              <option>विज्ञान</option>
-              <option>अंग्रेज़ी</option>
+            <select value={subject} onChange={(event) => { const nextSubject = event.target.value; setSubject(nextSubject); setChapter(upBoardSyllabus[level][nextSubject][0]); }}>
+              {syllabusSubjects.map((subjectName) => <option key={subjectName}>{subjectName}</option>)}
             </select>
           </label>
           <label>
             <span>आपकी कक्षा</span>
-            <select value={level} onChange={(event) => setLevel(event.target.value)}>
-              <option>कक्षा 1–2</option>
-              <option>कक्षा 3–5</option>
-              <option>कक्षा 6–8</option>
-              <option>कक्षा 9–12</option>
+            <select value={level} onChange={(event) => { const nextLevel = event.target.value; setLevel(nextLevel); setChapter(upBoardSyllabus[nextLevel][subject][0]); }}>
+              {syllabusLevels.map((levelName) => <option key={levelName}>{levelName}</option>)}
             </select>
           </label>
           <label>
             <span>अध्याय</span>
             <select value={chapter} onChange={(event) => setChapter(event.target.value)}>
-              {chaptersBySubject[subject].map((chapterName) => <option key={chapterName}>{chapterName}</option>)}
+              {upBoardSyllabus[level][subject].map((chapterName) => <option key={chapterName}>{chapterName}</option>)}
             </select>
           </label>
         </div>
