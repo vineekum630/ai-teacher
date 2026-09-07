@@ -30,6 +30,24 @@ The frontend currently calls `http://127.0.0.1:5000`. To use a different API add
 
 Restart Vite after changing the frontend API URL.
 
+## Free database and login
+
+The project uses Supabase's free Postgres database for teacher and student accounts.
+
+1. Create a free project at [supabase.com](https://supabase.com/).
+2. Open **SQL Editor** and run `backend/supabase-schema.sql`.
+3. Copy the project URL and server-only service role key into `backend/.env`:
+
+```text
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-server-only-service-role-key
+SESSION_SECRET=use-a-long-random-secret
+```
+
+Keep `SUPABASE_SERVICE_ROLE_KEY` and `SESSION_SECRET` out of React, GitHub, and `.env.local`.
+On Render, add the same values under the `guruji-api` service environment variables.
+The login form stores only a signed session token in the browser. Passwords are hashed before they are saved in Supabase.
+
 Add your actual `GEMINI_API_KEY` to `backend/.env` before starting the backend. Never put this key in React, `src/`, or `.env.local`; browser code is visible to visitors.
 
 To test the app without a Gemini request, set `MOCK_AI=true` in `backend/.env`. The backend will return a demo answer instead.

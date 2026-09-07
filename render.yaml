@@ -13,6 +13,12 @@ services:
         value: gemini-3.6-flash
       - key: MOCK_AI
         value: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
 
   - type: web
     name: guruji-web

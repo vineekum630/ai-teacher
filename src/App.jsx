@@ -95,14 +95,23 @@ function AnswerContent({ text }) {
 }
 
 function PilotAccess({ onJoin }) {
+  const [mode, setMode] = useState("login");
   const [role, setRole] = useState("student");
   const [name, setName] = useState("");
-  const [code, setCode] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submitAccess = (event) => {
+  const submitAccess = async (event) => {
     event.preventDefault();
-    if (!name.trim() || !code.trim()) return;
-    onJoin({ name: name.trim(), role, code: code.trim().toUpperCase() });
+    setError("");
+    if (mode === "register" && !name.trim()) return;
+    if (!email.trim() || password.length < 8) return;
+    setIsSubmitting(true);
+    const result = await onJoin({ name: name.trim(), email: email.trim(), password, role }, mode);
+    if (result?.error) setError(result.error);
+    setIsSubmitting(false);
   };
 
   return (
@@ -112,17 +121,23 @@ function PilotAccess({ onJoin }) {
         <div className="access-brand"><span className="brand-icon">गु</span><strong>गुरुजी</strong></div>
         <p className="kicker">मथुरा • आगरा पायलट</p>
         <h1>सीखने की कक्षा में<br /><em>जुड़िए।</em></h1>
-        <p className="access-copy">अपना नाम और शिक्षक से मिला code डालकर शुरू करें। यह pilot demo access है।</p>
+        <p className="access-copy">अपना account बनाकर गुरुजी की learning class में प्रवेश करें।</p>
+        <div className="role-tabs" role="tablist" aria-label="लॉगिन या नया account">
+          <button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>लॉगिन</button>
+          <button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>नया account</button>
+        </div>
         <div className="role-tabs" role="tablist" aria-label="भूमिका चुनें">
           <button className={role === "student" ? "active" : ""} type="button" onClick={() => setRole("student")}>विद्यार्थी</button>
           <button className={role === "teacher" ? "active" : ""} type="button" onClick={() => setRole("teacher")}>शिक्षक</button>
         </div>
         <form className="access-form" onSubmit={submitAccess}>
-          <label><span>{role === "teacher" ? "शिक्षक का नाम" : "विद्यार्थी का नाम"}</span><input value={name} onChange={(event) => setName(event.target.value)} placeholder="जैसे: रीना" /></label>
-          <label><span>{role === "teacher" ? "शिक्षक code" : "कक्षा code"}</span><input value={code} onChange={(event) => setCode(event.target.value)} placeholder={role === "teacher" ? "जैसे: MATHURA" : "जैसे: CLASS-3A"} /></label>
-          <button type="submit" disabled={!name.trim() || !code.trim()}>गुरुजी से जुड़ें <span>↗</span></button>
+          {mode === "register" && <label><span>आपका नाम</span><input value={name} onChange={(event) => setName(event.target.value)} placeholder="जैसे: रीना" /></label>}
+          <label><span>Email / ID</span><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" /></label>
+          <label><span>Password</span><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="कम से कम 8 अक्षर" autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+          <button type="submit" disabled={isSubmitting || !email.trim() || password.length < 8}>{isSubmitting ? "जुड़ रहे हैं..." : mode === "login" ? "लॉगिन करें" : "account बनाएं"} <span>↗</span></button>
         </form>
-        <p className="access-note">अभी password की जरूरत नहीं। असली school pilot में code शिक्षक देंगे।</p>
+        {error && <p className="access-error" role="alert">{error}</p>}
+        <p className="access-note">Password सुरक्षित रूप से database में hash होकर save होगा।</p>
       </section>
     </main>
   );
@@ -131,6 +146,7 @@ function PilotAccess({ onJoin }) {
 function App() {
   const [profile, setProfile] = useState(() => {
     try {
+      if (!localStorage.getItem("guruji-session-token")) return null;
       return JSON.parse(localStorage.getItem("guruji-pilot-profile")) || null;
     } catch {
       return null;
@@ -153,12 +169,27 @@ function App() {
   const [answerFeedback, setAnswerFeedback] = useState({});
   const [installPrompt, setInstallPrompt] = useState(null);
 
-  const joinPilot = (nextProfile) => {
-    localStorage.setItem("guruji-pilot-profile", JSON.stringify(nextProfile));
-    setProfile(nextProfile);
+  const joinPilot = async (credentials, mode) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+      const response = await fetch(`${apiUrl}/auth/${mode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      });
+      const data = await response.json();
+      if (!response.ok) return { error: data.error || "Login नहीं हो पाया" };
+      localStorage.setItem("guruji-session-token", data.token);
+      localStorage.setItem("guruji-pilot-profile", JSON.stringify(data.user));
+      setProfile(data.user);
+      return null;
+    } catch {
+      return { error: "Backend से connection नहीं हो पाया" };
+    }
   };
 
   const leavePilot = () => {
+    localStorage.removeItem("guruji-session-token");
     localStorage.removeItem("guruji-pilot-profile");
     setProfile(null);
   };
