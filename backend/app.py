@@ -59,10 +59,28 @@ def generate_ai_answer(question):
             "block when it helps. Keep diagrams under 6 nodes."
         ),
     }, {"role": "user", "content": question}]
-    models = [
-        os.getenv("GROQ_PRIMARY_MODEL", "llama-3.3-70b-versatile"),
-        os.getenv("GROQ_FALLBACK_MODEL", "llama-3.1-8b-instant"),
+    configured_models = [
+        os.getenv("GROQ_PRIMARY_MODEL", "openai/gpt-oss-120b"),
+        os.getenv("GROQ_FALLBACK_MODEL", "openai/gpt-oss-20b"),
     ]
+    try:
+        available_models = {model.id for model in client.models.list()}
+    except Exception as error:
+        logger.warning("Could not discover Groq models: %s", error)
+        models = configured_models
+    else:
+        models = [model for model in configured_models if model in available_models]
+        if not models:
+            preferred_models = [
+                "openai/gpt-oss-120b",
+                "openai/gpt-oss-20b",
+                "meta-llama/llama-4-scout-17b-16e-instruct",
+                "qwen/qwen3-32b",
+            ]
+            models = [model for model in preferred_models if model in available_models][:2]
+        if not models:
+            logger.error("No supported Groq models are available: %s", sorted(available_models))
+            raise RuntimeError("No supported Groq model is available")
     last_error = None
     for model in dict.fromkeys(models):
         try:
