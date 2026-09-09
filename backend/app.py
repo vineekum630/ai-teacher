@@ -1,6 +1,7 @@
 import os
 import re
 import logging
+from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -38,6 +39,17 @@ def issue_session(user):
 
 def valid_email(email):
     return re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) is not None
+
+
+def get_authenticated_user_id():
+    authorization = request.headers.get("Authorization", "")
+    token = authorization.removeprefix("Bearer ").strip()
+    if not token:
+        return None
+    try:
+        return get_session_serializer().loads(token, max_age=60 * 60 * 24 * 30)["user_id"]
+    except (BadSignature, SignatureExpired, KeyError):
+        return None
 
 
 def generate_ai_answer(question):
@@ -151,21 +163,58 @@ def login():
 
 @app.get("/auth/me")
 def current_user():
-    authorization = request.headers.get("Authorization", "")
-    token = authorization.removeprefix("Bearer ").strip()
-    if not token:
+    user_id = get_authenticated_user_id()
+    if not user_id:
         return jsonify({"error": "Sign-in required"}), 401
-    try:
-        session = get_session_serializer().loads(token, max_age=60 * 60 * 24 * 30)
-    except (BadSignature, SignatureExpired):
-        return jsonify({"error": "Session expired"}), 401
     database = get_database()
     if database is None:
         return jsonify({"error": "Database is not configured"}), 503
-    result = database.table("users").select("id,name,email,role").eq("id", session["user_id"]).limit(1).execute()
+    result = database.table("users").select("id,name,email,role").eq("id", user_id).limit(1).execute()
     if not result.data:
         return jsonify({"error": "User not found"}), 404
     return jsonify({"user": result.data[0]})
+
+
+@app.post("/progress")
+def save_progress():
+    user_id = get_authenticated_user_id()
+    if not user_id:
+        return jsonify({"error": "Sign-in required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    required = ("grade", "subject", "topic", "skill")
+    if any(not str(data.get(field, "")).strip() for field in required):
+        return jsonify({"error": "Progress context is incomplete"}), 400
+
+    try:
+        attempts = int(data.get("attempts", 0))
+        correct = int(data.get("correct", 0))
+    except (TypeError, ValueError):
+        return jsonify({"error": "Progress score is invalid"}), 400
+    if attempts < 1 or correct < 0 or correct > attempts:
+        return jsonify({"error": "Progress score is invalid"}), 400
+
+    status = "ready" if correct >= attempts - 1 else "developing" if correct else "starting"
+    database = get_database()
+    if database is None:
+        return jsonify({"error": "Database is not configured"}), 503
+
+    try:
+        result = database.table("learning_progress").upsert({
+            "user_id": user_id,
+            "grade": str(data["grade"]).strip(),
+            "subject": str(data["subject"]).strip(),
+            "topic": str(data["topic"]).strip(),
+            "skill": str(data["skill"]).strip(),
+            "attempts": attempts,
+            "correct": correct,
+            "mastery_status": status,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }, on_conflict="user_id,grade,subject,topic,skill").execute()
+        return jsonify({"progress": result.data[0] if result.data else {}}), 201
+    except Exception:
+        logger.exception("Could not save learning progress")
+        return jsonify({"error": "Could not save progress right now"}), 500
 
 @app.route("/ask", methods=["POST"])
 def ask():

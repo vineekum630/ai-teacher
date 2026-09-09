@@ -202,6 +202,7 @@ function App() {
   const [diagnosticChoice, setDiagnosticChoice] = useState("");
   const [diagnosticScore, setDiagnosticScore] = useState(0);
   const [diagnosticDone, setDiagnosticDone] = useState(false);
+  const [diagnosticSaveMessage, setDiagnosticSaveMessage] = useState("");
 
   const joinPilot = async (credentials, mode) => {
     try {
@@ -323,14 +324,38 @@ function App() {
     setAnswerFeedback((current) => ({ ...current, [index]: value }));
   };
 
+  const saveDiagnosticProgress = async (score) => {
+    const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+    const token = localStorage.getItem("guruji-session-token");
+    try {
+      const response = await fetch(`${apiUrl}/progress`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          grade: "कक्षा 5",
+          subject: "गणित",
+          topic: "भिन्न और दशमलव",
+          skill: "भिन्न पहचानना और जोड़ना",
+          attempts: fractionDiagnosticQuestions.length,
+          correct: score,
+        }),
+      });
+      setDiagnosticSaveMessage(response.ok ? "आपकी प्रगति सुरक्षित हो गई।" : "प्रगति अभी save नहीं हो पाई।");
+    } catch {
+      setDiagnosticSaveMessage("प्रगति अभी save नहीं हो पाई।");
+    }
+  };
+
   const checkDiagnosticAnswer = () => {
     if (!diagnosticChoice) return;
     const currentQuestion = fractionDiagnosticQuestions[diagnosticIndex];
+    const nextScore = diagnosticScore + (diagnosticChoice === currentQuestion.answer ? 1 : 0);
     if (diagnosticChoice === currentQuestion.answer) {
-      setDiagnosticScore((score) => score + 1);
+      setDiagnosticScore(nextScore);
     }
     if (diagnosticIndex === fractionDiagnosticQuestions.length - 1) {
       setDiagnosticDone(true);
+      saveDiagnosticProgress(nextScore);
     } else {
       setDiagnosticIndex((index) => index + 1);
       setDiagnosticChoice("");
@@ -509,6 +534,7 @@ function App() {
         ) : (
           <div className="diagnostic-result">
             <p>आपने शुरुआती जाँच पूरी कर ली। अब GyanMitra AI आपके लिए भिन्नों को आपके स्तर पर समझाएगा।</p>
+            {diagnosticSaveMessage && <p className="practice-hint" role="status">{diagnosticSaveMessage}</p>}
             <button className="next-button" type="button" onClick={startFractionLesson}>भिन्न सीखना शुरू करें →</button>
           </div>
         )}

@@ -36,6 +36,7 @@ The project uses Supabase's free Postgres database for teacher and student accou
 
 1. Create a free project at [supabase.com](https://supabase.com/).
 2. Open **SQL Editor** and run `backend/supabase-schema.sql`.
+	If you already ran an earlier version, run the updated file again; it adds the `learning_progress` table without removing existing users.
 3. Copy the project URL and server-only service role key into `backend/.env`:
 
 ```text
@@ -47,6 +48,8 @@ SESSION_SECRET=use-a-long-random-secret
 Keep `SUPABASE_SERVICE_ROLE_KEY` and `SESSION_SECRET` out of React, GitHub, and `.env.local`.
 On Render, add the same values under the `guruji-api` service environment variables.
 The login form stores only a signed session token in the browser. Passwords are hashed before they are saved in Supabase.
+
+When a learner completes the fractions diagnostic, the backend saves the grade, topic, attempts, correct answers, and a simple mastery status in `learning_progress`.
 
 ## Syllabus alignment
 
