@@ -1,4 +1,4 @@
-# AI Teacher
+# GyanMitra AI
 
 A React (Vite) learning interface with a Flask API.
 

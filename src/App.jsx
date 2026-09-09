@@ -130,10 +130,10 @@ function PilotAccess({ onJoin }) {
     <main className="access-shell">
       <div className="access-sun" aria-hidden="true" />
       <section className="access-card">
-        <div className="access-brand"><span className="brand-icon">गु</span><strong>गुरुजी</strong></div>
+        <div className="access-brand"><span className="brand-icon">ज्ञा</span><strong>GyanMitra AI</strong></div>
         <p className="kicker">मथुरा • आगरा पायलट</p>
         <h1>सीखने की कक्षा में<br /><em>जुड़िए।</em></h1>
-        <p className="access-copy">अपना account बनाकर गुरुजी की learning class में प्रवेश करें।</p>
+        <p className="access-copy">अपना account बनाकर GyanMitra AI की learning class में प्रवेश करें।</p>
         <div className="role-tabs" role="tablist" aria-label="लॉगिन या नया account">
           <button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>लॉगिन</button>
           <button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>नया account</button>
@@ -346,10 +346,10 @@ function App() {
     <main className="app-shell">
       <div className="sun-mark" aria-hidden="true" />
       <header className="topbar">
-        <a className="brand" href="/" aria-label="गुरुजी होम">
+        <a className="brand" href="/" aria-label="GyanMitra AI होम">
           <span className="brand-icon">गु</span>
           <span>
-            <strong>गुरुजी</strong>
+            <strong>GyanMitra AI</strong>
             <small>AI से सीखो, अपने अंदाज़ में</small>
           </span>
         </a>
@@ -379,8 +379,8 @@ function App() {
         </div>
       </section>
 
-      <section className="pilot-strip" aria-label="गुरुजी कैसे मदद करता है">
-        <div className="pilot-intro"><span className="section-number">गुरुजी</span><strong>पढ़ाई को आसान बनाने के तीन तरीके</strong></div>
+      <section className="pilot-strip" aria-label="GyanMitra AI कैसे मदद करता है">
+        <div className="pilot-intro"><span className="section-number">GyanMitra AI</span><strong>पढ़ाई को आसान बनाने के तीन तरीके</strong></div>
         <div className="pilot-point"><span className="point-icon">01</span><span><strong>अपनी भाषा</strong><small>सरल हिंदी में समझो</small></span></div>
         <div className="pilot-point"><span className="point-icon">02</span><span><strong>अपनी रफ़्तार</strong><small>बार-बार पूछो, झिझको मत</small></span></div>
         <div className="pilot-point"><span className="point-icon">03</span><span><strong>अपना उदाहरण</strong><small>खेत, बाज़ार और घर से सीखो</small></span></div>
@@ -479,13 +479,13 @@ function App() {
           <div className="empty-state">
             <span className="empty-icon">✎</span>
             <strong>आपका पहला सवाल इंतज़ार कर रहा है</strong>
-            <p>ऊपर कोई सवाल लिखें। गुरुजी उसे आसान करके समझाएंगे।</p>
+            <p>ऊपर कोई सवाल लिखें। GyanMitra AI उसे आसान करके समझाएगा।</p>
           </div>
         ) : (
           <div className="messages">
             {messages.map((message, index) => (
               <article className={`message ${message.type}`} key={`${message.type}-${index}`}>
-                <span className="message-label">{message.type === "student" ? "आपने पूछा" : message.type === "error" ? "ध्यान दें" : "गुरुजी का जवाब"}</span>
+                <span className="message-label">{message.type === "student" ? "आपने पूछा" : message.type === "error" ? "ध्यान दें" : "GyanMitra AI का जवाब"}</span>
                 {message.type === "teacher" ? (
                   <>
                     <AnswerContent text={message.text} />
