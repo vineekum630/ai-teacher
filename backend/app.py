@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -16,6 +17,7 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 def get_database():
@@ -70,6 +72,7 @@ def generate_ai_answer(question):
                 return answer
         except Exception as error:
             last_error = error
+            logger.warning("Groq model %s failed: %s", model, error)
     raise RuntimeError("All Groq models failed") from last_error
 
 
@@ -164,7 +167,13 @@ def ask():
 
     try:
         answer = generate_ai_answer(question.strip())
+    except RuntimeError as error:
+        if str(error) == "GROQ_API_KEY is not configured":
+            return jsonify({"error": "GROQ_API_KEY is not configured"}), 503
+        logger.exception("AI provider failed")
+        return jsonify({"error": "The AI service could not answer right now"}), 502
     except Exception:
+        logger.exception("Unexpected AI provider failure")
         return jsonify({"error": "The AI service could not answer right now"}), 502
 
     return jsonify({"answer": answer})
