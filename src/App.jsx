@@ -28,6 +28,24 @@ const practiceQuestions = [
   },
 ];
 
+const fractionDiagnosticQuestions = [
+  {
+    question: "चार बराबर टुकड़ों में से एक टुकड़ा कितना है?",
+    options: ["1/2", "1/3", "1/4", "4/1"],
+    answer: "1/4",
+  },
+  {
+    question: "2/4 किसके बराबर है?",
+    options: ["1/2", "1/3", "2/3", "1"],
+    answer: "1/2",
+  },
+  {
+    question: "1/4 + 1/4 कितना होगा?",
+    options: ["1/8", "1/2", "2/8", "1"],
+    answer: "1/2",
+  },
+];
+
 const upBoardSyllabus = {
   "कक्षा 3": {
     गणित: ["संख्याएँ", "जोड़ और घटाव", "गुणा और भाग", "भिन्न", "माप और समय"],
@@ -180,6 +198,10 @@ function App() {
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const [answerFeedback, setAnswerFeedback] = useState({});
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [diagnosticIndex, setDiagnosticIndex] = useState(0);
+  const [diagnosticChoice, setDiagnosticChoice] = useState("");
+  const [diagnosticScore, setDiagnosticScore] = useState(0);
+  const [diagnosticDone, setDiagnosticDone] = useState(false);
 
   const joinPilot = async (credentials, mode) => {
     try {
@@ -299,6 +321,28 @@ function App() {
 
   const giveFeedback = (index, value) => {
     setAnswerFeedback((current) => ({ ...current, [index]: value }));
+  };
+
+  const checkDiagnosticAnswer = () => {
+    if (!diagnosticChoice) return;
+    const currentQuestion = fractionDiagnosticQuestions[diagnosticIndex];
+    if (diagnosticChoice === currentQuestion.answer) {
+      setDiagnosticScore((score) => score + 1);
+    }
+    if (diagnosticIndex === fractionDiagnosticQuestions.length - 1) {
+      setDiagnosticDone(true);
+    } else {
+      setDiagnosticIndex((index) => index + 1);
+      setDiagnosticChoice("");
+    }
+  };
+
+  const startFractionLesson = () => {
+    setSubject("गणित");
+    setLevel("कक्षा 5");
+    setChapter("भिन्न और दशमलव");
+    setQuestion("मुझे भिन्न और दशमलव को रोटी के उदाहरण से आसान हिंदी में समझाओ।");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const askQuestion = async (event) => {
@@ -441,6 +485,33 @@ function App() {
             <button key={prompt} type="button" onClick={() => setQuestion(prompt)}>{prompt}</button>
           ))}
         </div>
+      </section>
+
+      <section className="diagnostic-card" aria-label="भिन्नों की शुरुआती जाँच">
+        <div className="practice-heading">
+          <div><span className="section-number">02</span><h2>भिन्नों की छोटी जाँच</h2></div>
+          <span className="score-badge">स्कोर: {diagnosticScore}/{fractionDiagnosticQuestions.length}</span>
+        </div>
+        {!diagnosticDone ? (
+          <>
+            <p className="practice-kicker">कक्षा 3–5 • गणित • भिन्न</p>
+            <h3>{fractionDiagnosticQuestions[diagnosticIndex].question}</h3>
+            <div className="practice-options">
+              {fractionDiagnosticQuestions[diagnosticIndex].options.map((option) => (
+                <button className={diagnosticChoice === option ? "selected" : ""} key={option} type="button" onClick={() => setDiagnosticChoice(option)}>{option}</button>
+              ))}
+            </div>
+            <div className="practice-actions">
+              <button className="check-button" type="button" onClick={checkDiagnosticAnswer} disabled={!diagnosticChoice}>जवाब जाँचें</button>
+              <span className="hint">सवाल {diagnosticIndex + 1}/{fractionDiagnosticQuestions.length}</span>
+            </div>
+          </>
+        ) : (
+          <div className="diagnostic-result">
+            <p>आपने शुरुआती जाँच पूरी कर ली। अब GyanMitra AI आपके लिए भिन्नों को आपके स्तर पर समझाएगा।</p>
+            <button className="next-button" type="button" onClick={startFractionLesson}>भिन्न सीखना शुरू करें →</button>
+          </div>
+        )}
       </section>
 
       <section className="practice-card" aria-label="गणित अभ्यास">
