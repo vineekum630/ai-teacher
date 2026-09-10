@@ -216,6 +216,26 @@ def save_progress():
         logger.exception("Could not save learning progress")
         return jsonify({"error": "Could not save progress right now"}), 500
 
+
+@app.get("/progress")
+def get_progress():
+    user_id = get_authenticated_user_id()
+    if not user_id:
+        return jsonify({"error": "Sign-in required"}), 401
+
+    database = get_database()
+    if database is None:
+        return jsonify({"error": "Database is not configured"}), 503
+
+    try:
+        result = database.table("learning_progress").select(
+            "grade,subject,topic,skill,attempts,correct,mastery_status,updated_at"
+        ).eq("user_id", user_id).order("updated_at", desc=True).execute()
+        return jsonify({"progress": result.data or []})
+    except Exception:
+        logger.exception("Could not load learning progress")
+        return jsonify({"error": "Could not load progress right now"}), 500
+
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json(silent=True) or {}

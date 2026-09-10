@@ -203,6 +203,24 @@ function App() {
   const [diagnosticScore, setDiagnosticScore] = useState(0);
   const [diagnosticDone, setDiagnosticDone] = useState(false);
   const [diagnosticSaveMessage, setDiagnosticSaveMessage] = useState("");
+  const [progressItems, setProgressItems] = useState([]);
+  const [progressLoading, setProgressLoading] = useState(false);
+
+  const loadProgress = async () => {
+    const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+    const token = localStorage.getItem("guruji-session-token");
+    if (!token) return;
+    setProgressLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/progress`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) setProgressItems(data.progress || []);
+    } finally {
+      setProgressLoading(false);
+    }
+  };
 
   const joinPilot = async (credentials, mode) => {
     try {
@@ -237,6 +255,12 @@ function App() {
     window.addEventListener("beforeinstallprompt", handleInstallPrompt);
     return () => window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
   }, []);
+
+  useEffect(() => {
+    if (!profile) return undefined;
+    const progressTimer = window.setTimeout(() => loadProgress(), 0);
+    return () => window.clearTimeout(progressTimer);
+  }, [profile]);
 
   const installApp = async () => {
     if (!installPrompt) return;
@@ -341,6 +365,7 @@ function App() {
         }),
       });
       setDiagnosticSaveMessage(response.ok ? "आपकी प्रगति सुरक्षित हो गई।" : "प्रगति अभी save नहीं हो पाई।");
+      if (response.ok) loadProgress();
     } catch {
       setDiagnosticSaveMessage("प्रगति अभी save नहीं हो पाई।");
     }
@@ -536,6 +561,30 @@ function App() {
             <p>आपने शुरुआती जाँच पूरी कर ली। अब GyanMitra AI आपके लिए भिन्नों को आपके स्तर पर समझाएगा।</p>
             {diagnosticSaveMessage && <p className="practice-hint" role="status">{diagnosticSaveMessage}</p>}
             <button className="next-button" type="button" onClick={startFractionLesson}>भिन्न सीखना शुरू करें →</button>
+          </div>
+        )}
+      </section>
+
+      <section className="progress-section" aria-label="मेरी प्रगति">
+        <div className="desk-heading">
+          <div>
+            <span className="section-number">04</span>
+            <h2>मेरी प्रगति</h2>
+          </div>
+          <span className="hint">आपने क्या सीखा, यहाँ देखें</span>
+        </div>
+        {progressLoading ? <p className="progress-empty">प्रगति लोड हो रही है...</p> : progressItems.length === 0 ? (
+          <p className="progress-empty">पहली diagnostic पूरी करें, आपकी प्रगति यहाँ दिखेगी।</p>
+        ) : (
+          <div className="progress-grid">
+            {progressItems.map((item) => (
+              <article className="progress-card" key={`${item.grade}-${item.topic}-${item.skill}`}>
+                <div className="progress-card-heading"><strong>{item.topic}</strong><span>{item.mastery_status === "ready" ? "तैयार" : item.mastery_status === "developing" ? "अभ्यास जारी" : "शुरुआत"}</span></div>
+                <p>{item.grade} • {item.subject}</p>
+                <div className="progress-score"><b>{item.correct}/{item.attempts}</b><span>सही जवाब</span></div>
+                <small>{item.skill}</small>
+              </article>
+            ))}
           </div>
         )}
       </section>
